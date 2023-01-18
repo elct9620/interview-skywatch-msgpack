@@ -23,6 +23,8 @@ func encode(va reflect.Value) (buffer []byte) {
 		buffer = append(buffer, encodeString(va)...)
 	case reflect.Map:
 		buffer = append(buffer, encodeMap(va)...)
+	case reflect.Struct:
+		buffer = append(buffer, encodeStruct(va)...)
 	}
 
 	return buffer
@@ -37,12 +39,31 @@ func encodeString(va reflect.Value) (buffer []byte) {
 }
 
 func encodeMap(va reflect.Value) (buffer []byte) {
-	elements := va.Len()
-	buffer = append(buffer, byte(TypeFixMap)|byte(elements))
+	numElement := va.Len()
+	buffer = append(buffer, byte(TypeFixMap)|byte(numElement))
 	for _, key := range va.MapKeys() {
 		buffer = append(buffer, encodeString(key)...)
 
 		buffer = append(buffer, encode(va.MapIndex(key))...)
+	}
+
+	return buffer
+}
+
+func encodeStruct(va reflect.Value) (buffer []byte) {
+	numField := va.NumField()
+	buffer = append(buffer, byte(TypeFixMap)|byte(numField))
+
+	vt := va.Type()
+	for i := 0; i < numField; i++ {
+		field := vt.Field(i)
+		name, ok := field.Tag.Lookup("msgpack")
+		if !ok {
+			name = field.Name
+		}
+
+		buffer = append(buffer, encodeString(reflect.ValueOf(name))...)
+		buffer = append(buffer, encode(va.Field(i))...)
 	}
 
 	return buffer
