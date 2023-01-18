@@ -62,9 +62,9 @@ func encodeBool(va reflect.Value) []byte {
 func encodeInt(va reflect.Value) (buffer []byte) {
 	value := va.Int()
 	if value > 0 {
-		buffer = append(buffer, byte(TypePositiveFixInt)|byte(value))
+		buffer = append(buffer, TypePositiveFixInt|byte(value))
 	} else {
-		buffer = append(buffer, byte(TypeNegativeFixInt)|byte(value))
+		buffer = append(buffer, TypeNegativeFixInt|byte(value))
 	}
 	return buffer
 }
@@ -84,8 +84,18 @@ func encodeFloat(va reflect.Value) (buffer []byte) {
 }
 
 func encodeString(va reflect.Value) (buffer []byte) {
-	strLen := va.Len()
-	buffer = append(buffer, byte(TypeFixStr)|byte(strLen))
+	switch strLen := va.Len(); {
+	case strLen < FixStrMaxLen:
+		buffer = append(buffer, TypeFixStr|byte(strLen))
+	case strLen < Str8MaxLen:
+		buffer = append(buffer, TypeStr8, byte(strLen))
+	case strLen < Str16MaxLen:
+		buffer = append(buffer, TypeStr16)
+		buffer = append(buffer, toInt16Bytes(uint16(strLen))...)
+	case strLen < Str32MaxLen:
+		buffer = append(buffer, TypeStr32)
+		buffer = append(buffer, toInt32Bytes(uint32(strLen))...)
+	}
 	buffer = append(buffer, []byte(va.String())...)
 
 	return buffer
@@ -93,7 +103,7 @@ func encodeString(va reflect.Value) (buffer []byte) {
 
 func encodeSlice(va reflect.Value) (buffer []byte) {
 	numElement := va.Len()
-	buffer = append(buffer, byte(TypeFixArray)|byte(numElement))
+	buffer = append(buffer, TypeFixArray|byte(numElement))
 
 	for i := 0; i < numElement; i++ {
 		buffer = append(buffer, encode(va.Index(i))...)
@@ -104,7 +114,7 @@ func encodeSlice(va reflect.Value) (buffer []byte) {
 
 func encodeMap(va reflect.Value) (buffer []byte) {
 	numElement := va.Len()
-	buffer = append(buffer, byte(TypeFixMap)|byte(numElement))
+	buffer = append(buffer, TypeFixMap|byte(numElement))
 	for _, key := range va.MapKeys() {
 		buffer = append(buffer, encodeString(key)...)
 
@@ -116,7 +126,7 @@ func encodeMap(va reflect.Value) (buffer []byte) {
 
 func encodeStruct(va reflect.Value) (buffer []byte) {
 	numField := va.NumField()
-	buffer = append(buffer, byte(TypeFixMap)|byte(numField))
+	buffer = append(buffer, TypeFixMap|byte(numField))
 
 	vt := va.Type()
 	for i := 0; i < numField; i++ {
@@ -130,5 +140,17 @@ func encodeStruct(va reflect.Value) (buffer []byte) {
 		buffer = append(buffer, encode(va.Field(i))...)
 	}
 
+	return buffer
+}
+
+func toInt16Bytes(v uint16) []byte {
+	buffer := make([]byte, 4)
+	binary.BigEndian.PutUint16(buffer, v)
+	return buffer
+}
+
+func toInt32Bytes(v uint32) []byte {
+	buffer := make([]byte, 4)
+	binary.BigEndian.PutUint32(buffer, v)
 	return buffer
 }
