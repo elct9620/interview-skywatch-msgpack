@@ -47,6 +47,10 @@ func Test_Marshal(t *testing.T) {
 			input:    -32,
 			expected: []byte{0xe0},
 		},
+		{
+			input:    []string{"name", "msgpack"},
+			expected: []byte{0x92, 0xa4, 0x6e, 0x61, 0x6d, 0x65, 0xa7, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b},
+		},
 	}
 
 	for _, tc := range cases {

@@ -34,6 +34,8 @@ func encode(va reflect.Value) (buffer []byte) {
 		buffer = append(buffer, encodeInt(va)...)
 	case reflect.String:
 		buffer = append(buffer, encodeString(va)...)
+	case reflect.Slice:
+		buffer = append(buffer, encodeSlice(va)...)
 	case reflect.Map:
 		buffer = append(buffer, encodeMap(va)...)
 	case reflect.Struct:
@@ -67,6 +69,17 @@ func encodeString(va reflect.Value) (buffer []byte) {
 	strLen := va.Len()
 	buffer = append(buffer, byte(TypeFixStr)|byte(strLen))
 	buffer = append(buffer, []byte(va.String())...)
+
+	return buffer
+}
+
+func encodeSlice(va reflect.Value) (buffer []byte) {
+	numElement := va.Len()
+	buffer = append(buffer, byte(TypeFixArray)|byte(numElement))
+
+	for i := 0; i < numElement; i++ {
+		buffer = append(buffer, encode(va.Index(i))...)
+	}
 
 	return buffer
 }

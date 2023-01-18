@@ -7,5 +7,6 @@ const (
 	TypePositiveFixInt = 0b00000000
 	TypeNegativeFixInt = 0b11100000
 	TypeFixStr         = 0b10100000
+	TypeFixArray       = 0b10010000
 	TypeFixMap         = 0b10000000
 )
