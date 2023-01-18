@@ -1,12 +1,21 @@
 package msgpack
 
 import (
+	"encoding/json"
 	"reflect"
 )
 
-func Marahal(v any) ([]byte, error) {
-	buffer := []byte{}
+func FromJSON(data []byte) (buffer []byte, err error) {
+	var payload any
+	err = json.Unmarshal(data, &payload)
+	if err != nil {
+		return nil, err
+	}
 
+	return Marahal(payload)
+}
+
+func Marahal(v any) (buffer []byte, err error) {
 	if v == nil {
 		buffer = append(buffer, TypeNil)
 	} else {
@@ -25,6 +34,8 @@ func encode(va reflect.Value) (buffer []byte) {
 		buffer = append(buffer, encodeMap(va)...)
 	case reflect.Struct:
 		buffer = append(buffer, encodeStruct(va)...)
+	case reflect.Interface:
+		buffer = append(buffer, encode(va.Elem())...)
 	}
 
 	return buffer

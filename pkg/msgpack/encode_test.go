@@ -50,3 +50,40 @@ func Test_Marshal(t *testing.T) {
 		})
 	}
 }
+
+func Test_FromJSON(t *testing.T) {
+	cases := []struct {
+		input    string
+		expected []byte
+	}{
+		{
+			input:    `null`,
+			expected: []byte{0xc0},
+		},
+		{
+			input:    `"msgpack"`,
+			expected: []byte{0xa7, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b},
+		},
+		{
+			input:    `{"name":"msgpack"}`,
+			expected: []byte{0x81, 0xa4, 0x6e, 0x61, 0x6d, 0x65, 0xa7, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b},
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+
+		t.Run(fmt.Sprintf("test encode from json: %s", tc.input), func(t *testing.T) {
+			t.Parallel()
+
+			data, err := msgpack.FromJSON([]byte(tc.input))
+			if err != nil {
+				t.Error(err)
+			}
+
+			if !cmp.Equal(tc.expected, data) {
+				t.Error(cmp.Diff(tc.expected, data))
+			}
+		})
+	}
+}
