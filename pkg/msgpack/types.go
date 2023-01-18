@@ -1,5 +1,6 @@
 package msgpack
 
 const (
-	NilType = 0xc0
+	TypeNil    = 0xc0
+	TypeFixStr = 0b10100000
 )

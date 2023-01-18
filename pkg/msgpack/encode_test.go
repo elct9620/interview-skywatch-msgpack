@@ -17,9 +17,15 @@ func Test_Marshal(t *testing.T) {
 			input:    nil,
 			expected: []byte{0xc0},
 		},
+		{
+			input:    "msgpack",
+			expected: []byte{0xa7, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b},
+		},
 	}
 
 	for _, tc := range cases {
+		tc := tc
+
 		t.Run(fmt.Sprintf("test encode %v", tc.input), func(t *testing.T) {
 			t.Parallel()
 
