@@ -28,6 +28,8 @@ func Marahal(v any) (buffer []byte, err error) {
 
 func encode(va reflect.Value) (buffer []byte) {
 	switch va.Kind() {
+	case reflect.Bool:
+		buffer = append(buffer, encodeBool(va)...)
 	case reflect.String:
 		buffer = append(buffer, encodeString(va)...)
 	case reflect.Map:
@@ -39,6 +41,14 @@ func encode(va reflect.Value) (buffer []byte) {
 	}
 
 	return buffer
+}
+
+func encodeBool(va reflect.Value) []byte {
+	if va.Bool() == true {
+		return []byte{TypeTrue}
+	}
+
+	return []byte{TypeFalse}
 }
 
 func encodeString(va reflect.Value) (buffer []byte) {
