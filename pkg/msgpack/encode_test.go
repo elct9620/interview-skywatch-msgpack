@@ -39,6 +39,14 @@ func Test_Marshal(t *testing.T) {
 			input:    true,
 			expected: []byte{0xc3},
 		},
+		{
+			input:    101,
+			expected: []byte{0x65},
+		},
+		{
+			input:    -32,
+			expected: []byte{0xe0},
+		},
 	}
 
 	for _, tc := range cases {

@@ -30,6 +30,8 @@ func encode(va reflect.Value) (buffer []byte) {
 	switch va.Kind() {
 	case reflect.Bool:
 		buffer = append(buffer, encodeBool(va)...)
+	case reflect.Int:
+		buffer = append(buffer, encodeInt(va)...)
 	case reflect.String:
 		buffer = append(buffer, encodeString(va)...)
 	case reflect.Map:
@@ -49,6 +51,16 @@ func encodeBool(va reflect.Value) []byte {
 	}
 
 	return []byte{TypeFalse}
+}
+
+func encodeInt(va reflect.Value) (buffer []byte) {
+	value := va.Int()
+	if value > 0 {
+		buffer = append(buffer, byte(TypePositiveFixInt)|byte(value))
+	} else {
+		buffer = append(buffer, byte(TypeNegativeFixInt)|byte(value))
+	}
+	return buffer
 }
 
 func encodeString(va reflect.Value) (buffer []byte) {
