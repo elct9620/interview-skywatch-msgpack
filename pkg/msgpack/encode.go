@@ -1,7 +1,9 @@
 package msgpack
 
 import (
+	"encoding/binary"
 	"encoding/json"
+	"math"
 	"reflect"
 )
 
@@ -32,6 +34,8 @@ func encode(va reflect.Value) (buffer []byte) {
 		buffer = append(buffer, encodeBool(va)...)
 	case reflect.Int:
 		buffer = append(buffer, encodeInt(va)...)
+	case reflect.Float32, reflect.Float64:
+		buffer = append(buffer, encodeFloat(va)...)
 	case reflect.String:
 		buffer = append(buffer, encodeString(va)...)
 	case reflect.Slice:
@@ -62,6 +66,20 @@ func encodeInt(va reflect.Value) (buffer []byte) {
 	} else {
 		buffer = append(buffer, byte(TypeNegativeFixInt)|byte(value))
 	}
+	return buffer
+}
+
+func encodeFloat(va reflect.Value) (buffer []byte) {
+	if va.Kind() == reflect.Float32 {
+		buffer = append(buffer, TypeFloat32)
+	} else {
+		buffer = append(buffer, TypeFloat64)
+	}
+
+	var floatBytes []byte = make([]byte, 8)
+	binary.BigEndian.PutUint64(floatBytes, math.Float64bits(va.Float()))
+	buffer = append(buffer, floatBytes...)
+
 	return buffer
 }
 
