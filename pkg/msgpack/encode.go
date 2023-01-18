@@ -5,7 +5,7 @@ func Marahal(v any) ([]byte, error) {
 
 	switch v.(type) {
 	case nil:
-		buffer = append(buffer, 0xc0)
+		buffer = append(buffer, NilType)
 	}
 
 	return buffer, nil
