@@ -13,6 +13,8 @@ const (
 	TypeStr16               = 0xda
 	TypeStr32               = 0xdb
 	TypeFixArray            = 0b10010000
+	TypeArray16             = 0xdc
+	TypeArray32             = 0xdd
 	TypeFixMap              = 0b10000000
 )
 
@@ -21,4 +23,10 @@ const (
 	Str8MaxLen   = 2 << 7
 	Str16MaxLen  = 2 << 15
 	Str32MaxLen  = 2 << 31
+)
+
+const (
+	FixArrayMaxElement = 15
+	Array16MaxElement  = 2 << 15
+	Array32MaxElement  = 2 << 31
 )

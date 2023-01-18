@@ -103,7 +103,16 @@ func encodeString(va reflect.Value) (buffer []byte) {
 
 func encodeSlice(va reflect.Value) (buffer []byte) {
 	numElement := va.Len()
-	buffer = append(buffer, TypeFixArray|byte(numElement))
+	switch {
+	case numElement < FixArrayMaxElement:
+		buffer = append(buffer, TypeFixArray|byte(numElement))
+	case numElement < Array16MaxElement:
+		buffer = append(buffer, TypeArray16)
+		buffer = append(buffer, toInt16Bytes(uint16(numElement))...)
+	case numElement < Array32MaxElement:
+		buffer = append(buffer, TypeArray32)
+		buffer = append(buffer, toInt32Bytes(uint32(numElement))...)
+	}
 
 	for i := 0; i < numElement; i++ {
 		buffer = append(buffer, encode(va.Index(i))...)
@@ -144,7 +153,7 @@ func encodeStruct(va reflect.Value) (buffer []byte) {
 }
 
 func toInt16Bytes(v uint16) []byte {
-	buffer := make([]byte, 4)
+	buffer := make([]byte, 2)
 	binary.BigEndian.PutUint16(buffer, v)
 	return buffer
 }
