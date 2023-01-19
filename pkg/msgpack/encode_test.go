@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/elct9620/skywatch-msgpack/pkg/msgpack"
+	"github.com/elct9620/interview-skywatch-msgpack/pkg/msgpack"
 	"github.com/google/go-cmp/cmp"
 )
 
