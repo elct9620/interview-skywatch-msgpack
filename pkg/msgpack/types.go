@@ -24,6 +24,8 @@ const (
 	TypeArray16             = 0xdc
 	TypeArray32             = 0xdd
 	TypeFixMap              = 0b10000000
+	TypeMap16               = 0xde
+	TypeMap32               = 0xdf
 )
 
 const (
@@ -48,4 +50,10 @@ const (
 	FixArrayMaxElement = 15
 	Array16MaxElement  = 2 << 15
 	Array32MaxElement  = 2 << 31
+)
+
+const (
+	FixMapMaxElement = 15
+	Map16MaxElement  = 2 << 15
+	Map32MaxElement  = 2 << 31
 )

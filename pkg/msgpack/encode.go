@@ -3,9 +3,17 @@ package msgpack
 import (
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"math"
 	"reflect"
+	"sort"
 )
+
+type mapItem struct {
+	key   reflect.Value
+	value reflect.Value
+	str   string
+}
 
 func FromJSON(data []byte) (buffer []byte, err error) {
 	var payload any
@@ -160,11 +168,31 @@ func encodeSlice(va reflect.Value) (buffer []byte) {
 
 func encodeMap(va reflect.Value) (buffer []byte) {
 	numElement := va.Len()
-	buffer = append(buffer, TypeFixMap|byte(numElement))
-	for _, key := range va.MapKeys() {
-		buffer = append(buffer, encodeString(key)...)
+	switch {
+	case numElement < FixMapMaxElement:
+		buffer = append(buffer, TypeFixMap|byte(numElement))
+	case numElement < Map16MaxElement:
+		buffer = append(buffer, TypeMap16)
+		buffer = append(buffer, toInt16Bytes(uint16(numElement))...)
+	case numElement < Map32MaxElement:
+		buffer = append(buffer, TypeMap32)
+		buffer = append(buffer, toInt32Bytes(uint32(numElement))...)
+	}
 
-		buffer = append(buffer, encode(va.MapIndex(key))...)
+	fmt.Printf("%v\n", va)
+
+	items := make([]mapItem, numElement)
+	mi := va.MapRange()
+	for i := 0; mi.Next(); i++ {
+		items[i].key = mi.Key()
+		items[i].value = mi.Value()
+		items[i].str = mi.Key().String()
+	}
+	sort.Slice(items, func(i, j int) bool { return items[i].str < items[j].str })
+
+	for _, item := range items {
+		buffer = append(buffer, encodeString(item.key)...)
+		buffer = append(buffer, encode(item.value)...)
 	}
 
 	return buffer
