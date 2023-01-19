@@ -6,6 +6,14 @@ const (
 	TypeTrue                = 0xc3
 	TypePositiveFixInt      = 0b00000000
 	TypeNegativeFixInt      = 0b11100000
+	TypeUint8               = 0xcc
+	TypeUint16              = 0xcd
+	TypeUint32              = 0xce
+	TypeUint64              = 0xcf
+	TypeInt8                = 0xd0
+	TypeInt16               = 0xd1
+	TypeInt32               = 0xd2
+	TypeInt64               = 0xd3
 	TypeFloat32             = 0xca
 	TypeFloat64             = 0xcb
 	TypeFixStr              = 0b10100000
@@ -16,6 +24,17 @@ const (
 	TypeArray16             = 0xdc
 	TypeArray32             = 0xdd
 	TypeFixMap              = 0b10000000
+)
+
+const (
+	PositiveFixIntMax int64 = 127
+	Uint8Max                = 2 << 7
+	Uint16Max               = 2 << 15
+	Uint32Max               = 2 << 31
+	NegativeFixIntMin       = -32
+	Int8Min                 = -(2 << 7) / 2
+	Int16Min                = -(2 << 15) / 2
+	Int32Min                = -(2 << 31) / 2
 )
 
 const (

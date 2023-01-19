@@ -32,6 +32,8 @@ func encode(va reflect.Value) (buffer []byte) {
 	switch va.Kind() {
 	case reflect.Bool:
 		buffer = append(buffer, encodeBool(va)...)
+	case reflect.Uint:
+		buffer = append(buffer, encodeUint(va)...)
 	case reflect.Int:
 		buffer = append(buffer, encodeInt(va)...)
 	case reflect.Float32, reflect.Float64:
@@ -59,26 +61,61 @@ func encodeBool(va reflect.Value) []byte {
 	return []byte{TypeFalse}
 }
 
+func encodeUint(va reflect.Value) (buffer []byte) {
+	value := va.Int()
+	switch {
+	case value < PositiveFixIntMax:
+		buffer = append(buffer, TypePositiveFixInt|byte(value))
+	case value < Uint8Max:
+		buffer = append(buffer, TypeUint8, byte(value))
+	case value < Uint16Max:
+		buffer = append(buffer, TypeUint16)
+		buffer = append(buffer, toInt16Bytes(uint16(value))...)
+	case value < Uint32Max:
+		buffer = append(buffer, TypeUint32)
+		buffer = append(buffer, toInt32Bytes(uint32(value))...)
+	default:
+		buffer = append(buffer, TypeUint64)
+		buffer = append(buffer, toInt64Bytes(uint64(value))...)
+	}
+
+	return buffer
+}
+
 func encodeInt(va reflect.Value) (buffer []byte) {
 	value := va.Int()
-	if value > 0 {
-		buffer = append(buffer, TypePositiveFixInt|byte(value))
-	} else {
-		buffer = append(buffer, TypeNegativeFixInt|byte(value))
+	if value >= 0 {
+		return encodeUint(va)
 	}
+
+	switch {
+	case value >= NegativeFixIntMin:
+		buffer = append(buffer, TypeNegativeFixInt|byte(value))
+	case value > Int8Min:
+		buffer = append(buffer, TypeInt8)
+		buffer = append(buffer, byte(value))
+	case value > Int16Min:
+		buffer = append(buffer, TypeInt16)
+		buffer = append(buffer, toInt16Bytes(uint16(value))...)
+	case value > Int32Min:
+		buffer = append(buffer, TypeInt32)
+		buffer = append(buffer, toInt32Bytes(uint32(value))...)
+	default:
+		buffer = append(buffer, TypeInt64)
+		buffer = append(buffer, toInt64Bytes(uint64(value))...)
+	}
+
 	return buffer
 }
 
 func encodeFloat(va reflect.Value) (buffer []byte) {
 	if va.Kind() == reflect.Float32 {
 		buffer = append(buffer, TypeFloat32)
+		buffer = append(buffer, toInt32Bytes(math.Float32bits(float32(va.Float())))...)
 	} else {
 		buffer = append(buffer, TypeFloat64)
+		buffer = append(buffer, toInt64Bytes(math.Float64bits(va.Float()))...)
 	}
-
-	var floatBytes []byte = make([]byte, 8)
-	binary.BigEndian.PutUint64(floatBytes, math.Float64bits(va.Float()))
-	buffer = append(buffer, floatBytes...)
 
 	return buffer
 }
@@ -161,5 +198,11 @@ func toInt16Bytes(v uint16) []byte {
 func toInt32Bytes(v uint32) []byte {
 	buffer := make([]byte, 4)
 	binary.BigEndian.PutUint32(buffer, v)
+	return buffer
+}
+
+func toInt64Bytes(v uint64) []byte {
+	buffer := make([]byte, 8)
+	binary.BigEndian.PutUint64(buffer, v)
 	return buffer
 }

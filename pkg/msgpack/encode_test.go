@@ -49,8 +49,40 @@ func Test_Marshal(t *testing.T) {
 			expected: []byte{0x65},
 		},
 		{
+			input:    144,
+			expected: []byte{0xcc, 0x90},
+		},
+		{
+			input:    1208,
+			expected: []byte{0xcd, 0x04, 0xb8},
+		},
+		{
+			input:    65599,
+			expected: []byte{0xce, 0x00, 0x01, 0x00, 0x3f},
+		},
+		{
+			input:    8589934715,
+			expected: []byte{0xcf, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x7b},
+		},
+		{
 			input:    -32,
 			expected: []byte{0xe0},
+		},
+		{
+			input:    -39,
+			expected: []byte{0xd0, 0xd9},
+		},
+		{
+			input:    -128,
+			expected: []byte{0xd1, 0xff, 0x80},
+		},
+		{
+			input:    -32768,
+			expected: []byte{0xd2, 0xff, 0xff, 0x80, 0x00},
+		},
+		{
+			input:    -2147483648,
+			expected: []byte{0xd3, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00},
 		},
 		{
 			input:    1.256,
