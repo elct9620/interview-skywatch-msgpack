@@ -1,6 +1,8 @@
 (Interview) Skywatch Msgpack
 ===
 
+[![Go](https://github.com/elct9620/interview-skywatch-msgpack/actions/workflows/go.yml/badge.svg)](https://github.com/elct9620/interview-skywatch-msgpack/actions/workflows/go.yml)
+
 This is Skywatch Interview Assignment to implement a msgpack encoder.
 
 ## Usage
