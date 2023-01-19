@@ -3,7 +3,6 @@ package msgpack
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"math"
 	"reflect"
 	"sort"
@@ -22,10 +21,10 @@ func FromJSON(data []byte) (buffer []byte, err error) {
 		return nil, err
 	}
 
-	return Marahal(payload)
+	return Marshal(payload)
 }
 
-func Marahal(v any) (buffer []byte, err error) {
+func Marshal(v any) (buffer []byte, err error) {
 	if v == nil {
 		buffer = append(buffer, TypeNil)
 	} else {
@@ -178,8 +177,6 @@ func encodeMap(va reflect.Value) (buffer []byte) {
 		buffer = append(buffer, TypeMap32)
 		buffer = append(buffer, toInt32Bytes(uint32(numElement))...)
 	}
-
-	fmt.Printf("%v\n", va)
 
 	items := make([]mapItem, numElement)
 	mi := va.MapRange()

@@ -108,7 +108,7 @@ func Test_Marshal(t *testing.T) {
 		t.Run(fmt.Sprintf("test encode %v", tc.input), func(t *testing.T) {
 			t.Parallel()
 
-			data, err := msgpack.Marahal(tc.input)
+			data, err := msgpack.Marshal(tc.input)
 			if err != nil {
 				t.Error(err)
 			}
